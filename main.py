@@ -31,6 +31,7 @@ def read_task(task_id: UUID):
 
     raise HTTPException(status_code=404 , detail="Tasks not found")        
 
+
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: UUID, task_update: Task):
     for idx, task in enumerate(tasks):
@@ -40,6 +41,14 @@ def update_task(task_id: UUID, task_update: Task):
             return updated_task
     raise HTTPException(status_code=404, detail="Task not Found")
 
+
+@app.delete("/tasks/{task_id}", response_model=Task)
+def delete_task(task_id):
+    for idx, task in enumerate(tasks):
+        if task.id == task_id:
+            return tasks.pop(idx)
+            
+    raise HTTPException(status_code=404, detail="Task not Found")
 
 if __name__ == "__main__":
     import uvicorn
