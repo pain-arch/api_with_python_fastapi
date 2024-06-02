@@ -1,28 +1,37 @@
+# imports
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from uuid import UUID, uuid4
 
+# Create a FastAPI instance
 app = FastAPI()
 
+# Task Model
 class Task(BaseModel):
     id: Optional[UUID] = None
     title: str
     description: Optional[str] = None
     completed: bool = False
 
+
 tasks = []
 
+# All Routes
+
+# Create a task
 @app.post("/tasks/", response_model=Task)
 def create_task(task: Task):
     task.id = uuid4()
     tasks.append(task)
     return task
 
+# Read all tasks
 @app.get("/tasks", response_model=List[Task])
 def read_tasks():
     return tasks
 
+# Read a task
 @app.get("/tasks/{task_id}", response_model=Task)
 def read_task(task_id: UUID):
     for task in tasks:
@@ -31,7 +40,7 @@ def read_task(task_id: UUID):
 
     raise HTTPException(status_code=404 , detail="Tasks not found")        
 
-
+# Update a task
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: UUID, task_update: Task):
     for idx, task in enumerate(tasks):
@@ -41,15 +50,16 @@ def update_task(task_id: UUID, task_update: Task):
             return updated_task
     raise HTTPException(status_code=404, detail="Task not Found")
 
-
+# Delete a task
 @app.delete("/tasks/{task_id}", response_model=Task)
 def delete_task(task_id):
     for idx, task in enumerate(tasks):
         if task.id == task_id:
             return tasks.pop(idx)
-            
+
     raise HTTPException(status_code=404, detail="Task not Found")
 
+# Run the app
 if __name__ == "__main__":
     import uvicorn
     
